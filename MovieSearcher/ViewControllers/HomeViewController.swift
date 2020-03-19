@@ -13,7 +13,7 @@ class HomeViewController: UIViewController {
     @IBOutlet weak var searchBar: UISearchBar!
     @IBOutlet weak var moviesTableView: UITableView!
     
-    let movieAPIManager: MovieAPIManager = MovieAPIManager()
+    var movieAPIManager: MovieAPIManager = MovieAPIManager()
     
     var moviesTableViewDataSource: [Result] = [] {
         didSet {
@@ -27,20 +27,33 @@ class HomeViewController: UIViewController {
         super.viewDidLoad()
         navigationController?.navigationBar.prefersLargeTitles = true
         moviesTableView.tableFooterView = UIView()
+        moviesTableView.separatorColor = .lightGray
         searchBar.delegate = self
     }
     
-    fileprivate func queryForMovies(query: String) {
-        movieAPIManager.getMovies(query: query) { (moviesResponse, error) in
+    func queryForMovies(query: String) {
+        movieAPIManager.getMovies(query: query) { [weak self] (moviesResponse, error) in
             guard error == nil else {
                 print("APIManager returned an error: \(error)")
                 return
             }
             
             if let results = moviesResponse?.results {
-                self.moviesTableViewDataSource = results
+                self?.moviesTableViewDataSource = results
             } else {
-                self.moviesTableViewDataSource = []
+                self?.moviesTableViewDataSource = []
+            }
+        }
+    }
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "detailSegue" {
+            if let index = moviesTableView.indexPathForSelectedRow?.row, let vc = segue.destination as? MovieDetailViewController {
+                vc.movie = moviesTableViewDataSource[index]
+                if let indexPath = moviesTableView.indexPathForSelectedRow {
+                    let cell = moviesTableView.cellForRow(at: indexPath) as! MovieTableViewCell
+                    vc.image = cell.coverImageView.image
+                }
             }
         }
     }
@@ -62,6 +75,10 @@ extension HomeViewController: UITableViewDataSource, UITableViewDelegate {
         cell.viewModel = MovieTableViewCellViewModel(movie: result, apiManager: movieAPIManager)
         
         return cell
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
     }
 }
 

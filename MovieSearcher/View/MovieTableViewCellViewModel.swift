@@ -46,8 +46,9 @@ class MovieTableViewCellViewModel {
     
     func loadCover(completion: @escaping (_ image: UIImage?) -> Void) {
         if let path = movie.posterPath {
-            apiManager.getCoverImage(path: path) { (data) in
-                if let data = data {
+            apiManager.getCoverImage(path: path) { (data, imageURL) in
+                let expectedEndpont = APIEndpoint.image(imagePath: path)
+                if expectedEndpont.stringRespresentation() == imageURL, let data = data {
                     let image = UIImage(data: data)
                     completion(image)
                 } else {

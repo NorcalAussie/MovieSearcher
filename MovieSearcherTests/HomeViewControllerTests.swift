@@ -7,27 +7,35 @@
 //
 
 import XCTest
+@testable import MovieSearcher
+
 
 class HomeViewControllerTests: XCTestCase {
-
+    
+    var sut: HomeViewController!
+    var moviesTableView: UITableView!
+    
     override func setUp() {
-        // Put setup code here. This method is called before the invocation of each test method in the class.
+        sut = HomeViewController()
+        moviesTableView = UITableView()
+        sut.moviesTableView = moviesTableView
     }
 
     override func tearDown() {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
+   
     }
-
-    func testExample() {
-        // This is an example of a functional test case.
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
+    
+    func testQueryForMoviesReturnsData() {
+        let results = [Result(popularity: nil, voteCount: nil, video: nil, posterPath: "", id: nil, adult: nil, backdropPath: nil, originalTitle: nil, genreIDS: nil, title: "Star Wars", voteAverage: nil, overview: nil, releaseDate: nil)]
+        let movieResponse = MovieResponse(results: results)
+        
+        let mockAPIManager = MockAPIManager()
+        mockAPIManager.movieResponse = movieResponse
+        
+        sut.movieAPIManager = mockAPIManager
+        sut.queryForMovies(query: "Star Wars")
+        
+        XCTAssertEqual(sut.moviesTableViewDataSource.count, 1)
+        XCTAssertEqual(mockAPIManager.queryString, "Star Wars")
     }
-
-    func testPerformanceExample() {
-        // This is an example of a performance test case.
-        self.measure {
-            // Put the code you want to measure the time of here.
-        }
-    }
-
 }

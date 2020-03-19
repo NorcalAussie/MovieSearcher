@@ -25,12 +25,13 @@ enum APIEndpoint {
     }
 }
 
+
 class MovieAPIManager {
     
     func getMovies(query: String, completion: @escaping (_ response: MovieResponse?, _ error: Error?) -> Void) {
         let endpoint = APIEndpoint.movieQuery(query: query)
         
-        getDatafromAPI(endpoint: endpoint) { (data, error) in
+        getDatafromAPI(endpoint: endpoint) { (data, response, error) in
             guard error == nil else {
                 completion(nil, error)
                 return
@@ -43,15 +44,20 @@ class MovieAPIManager {
         }
     }
     
-    func getCoverImage(path: String, completion: @escaping (_ imageData: Data?) -> Void) {
+    func getCoverImage(path: String, completion: @escaping (_ imageData: Data?,_ imageURL: String) -> Void) {
         let endpoint = APIEndpoint.image(imagePath: path)
         
-        getDatafromAPI(endpoint: endpoint) { (data, error) in
-            completion(data)
+        getDatafromAPI(endpoint: endpoint) { (data, response, error) in
+            var imageURL: String = ""
+            if let response = response, let url = response.url {
+                imageURL = url.absoluteString
+            }
+            
+            completion(data, imageURL)
         }
     }
     
-    fileprivate func getDatafromAPI(endpoint: APIEndpoint, completion: @escaping (_ data: Data?, _ error: Error?) -> Void) {
+    func getDatafromAPI(endpoint: APIEndpoint, completion: @escaping (_ data: Data?,_ response: URLResponse?, _ error: Error?) -> Void) {
         let session = URLSession.shared
         
         let endpointURL = endpoint.stringRespresentation().addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)
@@ -59,10 +65,11 @@ class MovieAPIManager {
         let request = URLRequest(url: URL(string: endpointURL!)!, cachePolicy: .useProtocolCachePolicy, timeoutInterval: 10)
         
         let dataTask = session.dataTask(with: request) { (data, response, error) in
-            completion(data, error)
+            completion(data, response, error)
         }
         
         dataTask.resume()
     }
-    
 }
+
+

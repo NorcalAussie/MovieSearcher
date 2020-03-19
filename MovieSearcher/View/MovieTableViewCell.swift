@@ -36,6 +36,7 @@ class MovieTableViewCell: UITableViewCell {
         coverImageView.backgroundColor = .white
         titleLabel.text = viewModel.movieTitleText
         yearLabel.text = viewModel.releaseText
+        
         viewModel.loadCover { (image) in
             DispatchQueue.main.async {
                 if let image = image {
