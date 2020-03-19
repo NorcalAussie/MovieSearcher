@@ -1,5 +1,5 @@
 //
-//  MovieSearcherTests.swift
+//  MovieAPIManagerTests.swift
 //  MovieSearcherTests
 //
 //  Created by Matthew Pearce on 3/19/20.
@@ -7,9 +7,8 @@
 //
 
 import XCTest
-@testable import MovieSearcher
 
-class MovieSearcherTests: XCTestCase {
+class MovieAPIManagerTests: XCTestCase {
 
     override func setUp() {
         // Put setup code here. This method is called before the invocation of each test method in the class.
